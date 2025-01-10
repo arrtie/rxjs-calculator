@@ -14,7 +14,6 @@ export const calculationObservable = merge(
       state: CalculationState,
       action: (state: CalculationState) => CalculationState
     ) => {
-      console.log("state: ", state);
       return action(state);
     },
     { firstOp: "", secondOp: "", operator: "" }
