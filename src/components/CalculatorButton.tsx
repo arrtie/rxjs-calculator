@@ -1,5 +1,6 @@
 /** @format */
 
+import { PropsOf } from "@emotion/react";
 import { ReactNode } from "preact/compat";
 
 interface CalculatorButton {
@@ -9,10 +10,10 @@ interface CalculatorButton {
 
 export default function CalculatorButton({
   children,
-  onClick,
-}: CalculatorButton) {
+  ...props
+}: PropsOf<HTMLButtonElement>) {
   return (
-    <button onClick={onClick} css={{ padding: "8px" }}>
+    <button {...props} css={{ padding: "8px" }}>
       {children}
     </button>
   );

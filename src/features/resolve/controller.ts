@@ -1,3 +1,7 @@
 /** @format */
 
-export { clickClear, clickTotal } from "../../calculation/index";
+export {
+  clickClear,
+  clickTotal,
+  hasSecondOperandObservable as readyToTotal,
+} from "../../calculation/index";

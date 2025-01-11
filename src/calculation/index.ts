@@ -1,6 +1,6 @@
 /** @format */
 
-import { BehaviorSubject, combineLatest, map, merge, scan } from "rxjs";
+import { BehaviorSubject, combineLatest, map, merge, scan, share } from "rxjs";
 import { operandSubject } from "../features/operand/controller";
 import { operate, operatorSubject } from "../features/operator/controller";
 import { CalculationState } from "../model";
@@ -17,7 +17,8 @@ export const calculationObservable = merge(
       return action(state);
     },
     { firstOp: "", secondOp: "", operator: "" }
-  )
+  ),
+  share()
 );
 
 export const updateCalculation = (opState: CalculationState) => {
@@ -51,6 +52,7 @@ export function clickClear() {
   displayActionBehavior.next(updateCalculation);
   operatorSubject.next(clearCalculation);
 }
+
 export const displayActionBehavior = new BehaviorSubject<DisplayAction>(
   updateCalculation
 );
@@ -59,3 +61,7 @@ export const displayObservable = combineLatest([
   calculationObservable,
   displayActionBehavior,
 ]).pipe(map(([state, displayAction]) => displayAction(state)));
+
+export const hasSecondOperandObservable = calculationObservable.pipe(
+  map((state) => state.secondOp !== "")
+);

@@ -8,7 +8,13 @@ import ResolveButtons from "./features/resolve/view";
 
 export function App() {
   return (
-    <main>
+    <main
+      css={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+      }}
+    >
       <h1>RXJS Calculator</h1>
       <DisplayView />
       <OperandView />
