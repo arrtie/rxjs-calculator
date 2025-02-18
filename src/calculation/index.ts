@@ -1,6 +1,6 @@
 /** @format */
 
-import { BehaviorSubject, combineLatest, map, merge, scan, share } from "rxjs";
+import { BehaviorSubject, map, merge, scan, share } from "rxjs";
 import { operandSubject } from "../features/operand/controller";
 import { operate, operatorSubject } from "../features/operator/controller";
 import { CalculationState } from "../model";
@@ -57,11 +57,22 @@ export const displayActionBehavior = new BehaviorSubject<DisplayAction>(
   updateCalculation
 );
 
-export const displayObservable = combineLatest([
-  calculationObservable,
-  displayActionBehavior,
-]).pipe(map(([state, displayAction]) => displayAction(state)));
+// export const displayObservable = combineLatest([
+//   calculationObservable,
+//   displayActionBehavior,
+// ]).pipe(map(([state, displayAction]) => displayAction(state)));
 
 export const hasSecondOperandObservable = calculationObservable.pipe(
   map((state) => state.secondOp !== "")
+);
+
+const inputBehavior = new BehaviorSubject("");
+export function clickButton(buttonValue: string) {
+  inputBehavior.next(buttonValue);
+}
+
+export const displayObservable = inputBehavior.pipe(
+  scan((acc, current) => {
+    return `${acc}${current}`;
+  }, "")
 );

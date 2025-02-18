@@ -1,6 +1,7 @@
 /** @format */
 
 import { Subject } from "rxjs";
+import { clickButton } from "../../calculation";
 import { CalculationAction, CalculationState } from "../../model";
 
 export const calculatorOperators = ["+", "-", "/", "*"];
@@ -28,7 +29,8 @@ export function operate(x: number, op: CalculatorOperator, y: number) {
 }
 
 export function clickOperator(operator: CalculatorOperator) {
-  operatorSubject.next(selectOperator(operator));
+  // operatorSubject.next(selectOperator(operator));
+  clickButton(operator);
 }
 
 function selectOperator(operator: CalculatorOperator) {
