@@ -2,12 +2,25 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch via NPM",
+      "name": "Debug: Chrome",
+      "type": "chrome",
+      "request": "launch",
+      "webRoot": "${workspaceFolder}",
+      "url": "http://localhost:9000"
+    },
+    {
+      "name": "Vite: Node",
       "type": "node",
       "request": "launch",
-      "cwd": "${workspaceRoot}",
+      "outputCapture": "std",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run-script", "dev"]
+      "runtimeArgs": ["run", "dev"]
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Debug Session",
+      "configurations": ["Vite: Node", "Debug: Chrome"]
     }
   ]
 }
