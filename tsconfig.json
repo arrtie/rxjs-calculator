@@ -11,6 +11,9 @@
       "react-dom": ["./node_modules/preact/compat/"]
     },
 
+    // adding global variables for vitest
+    "types": ["vitest/globals"],
+
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,

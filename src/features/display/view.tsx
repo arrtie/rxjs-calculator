@@ -5,5 +5,5 @@ import { displayObservable } from "./controller";
 
 export default function DisplayView() {
   const display = useObservable(displayObservable);
-  return <pre>[{display}]</pre>;
+  return <pre data-testId="display">[{display}]</pre>;
 }
