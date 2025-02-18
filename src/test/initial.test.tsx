@@ -2,8 +2,6 @@
 
 import { render, screen } from "@testing-library/preact";
 import userEvent from "@testing-library/user-event";
-import "global-jsdom";
-import "jsdom";
 import { describe, expect, test } from "vitest";
 import { App } from "../app";
 
