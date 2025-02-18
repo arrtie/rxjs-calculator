@@ -3,7 +3,7 @@
 import { BehaviorSubject, map, merge, scan, share } from "rxjs";
 import { operandSubject } from "../features/operand/controller";
 import { operate, operatorSubject } from "../features/operator/controller";
-import { CalculationState } from "../model";
+import { CalculationState, calculatorOperators } from "../model";
 
 export const calculationObservable = merge(
   operandSubject,
@@ -67,12 +67,28 @@ export const hasSecondOperandObservable = calculationObservable.pipe(
 );
 
 const inputBehavior = new BehaviorSubject("");
+
 export function clickButton(buttonValue: string) {
   inputBehavior.next(buttonValue);
 }
 
-export const displayObservable = inputBehavior.pipe(
-  scan((acc, current) => {
-    return `${acc}${current}`;
-  }, "")
+export const ongoingCalculationObservable = inputBehavior.pipe(
+  scan(
+    (acc, current) => {
+      if (calculatorOperators.includes(current)) {
+        acc.operand = current;
+      }
+      acc.display = `${acc.display}${current}`;
+      return acc;
+    },
+    { display: "", operand: "" }
+  ),
+  share()
+);
+
+export const displayObservable = ongoingCalculationObservable.pipe(
+  map((calcObj) => calcObj.display)
+);
+export const hasOperatorObservable = ongoingCalculationObservable.pipe(
+  map((calcObj) => calcObj.operand != "")
 );

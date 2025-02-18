@@ -9,5 +9,5 @@ const clickTotal = () => {
   clickButton("=");
 };
 
-export { hasSecondOperandObservable as readyToTotal } from "../../calculation/index";
+export { hasOperatorObservable as readyToTotal } from "../../calculation/index";
 export { clickClear, clickTotal };

@@ -36,3 +36,5 @@ export function clickOperator(operator: CalculatorOperator) {
 function selectOperator(operator: CalculatorOperator) {
   return (state: CalculationState) => ({ ...state, operator });
 }
+
+export { hasOperatorObservable as disableOperatorsObservable } from "../../calculation/index";
