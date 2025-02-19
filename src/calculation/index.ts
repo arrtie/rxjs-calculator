@@ -1,7 +1,7 @@
 /** @format */
 
 import { BehaviorSubject, map, scan, share } from "rxjs";
-import { CalculatorOperator, calculatorOperators } from "../model";
+import { CalculationObject, calculatorOperators } from "../model";
 import nullCheck from "../utils/nullCheck";
 import { operate } from "./operator";
 
@@ -9,12 +9,6 @@ const inputBehavior = new BehaviorSubject("");
 
 export function clickButton(buttonValue: string) {
   inputBehavior.next(buttonValue);
-}
-
-interface CalculationObject {
-  display: string;
-  operator: CalculatorOperator | null;
-  done: boolean;
 }
 
 function appendToCalcObject(latestChar: string) {
@@ -33,14 +27,13 @@ export const ongoingCalculationObservable = inputBehavior.pipe(
       };
     }
     if (latestChar === "C") {
-      return () => ({ display: "", operator: null, done: false });
+      return () => ({ display: "", operator: null });
     }
     if (latestChar === "=") {
       return (calcObj: CalculationObject) => {
         return {
           display: calculateFromObject(calcObj),
           operator: null,
-          done: true,
         };
       };
     }
@@ -48,17 +41,28 @@ export const ongoingCalculationObservable = inputBehavior.pipe(
   }),
   scan<(v: CalculationObject) => CalculationObject, CalculationObject>(
     (acc, current) => current(acc),
-    { display: "", operator: null, done: false }
+    { display: "", operator: null }
   ),
   share()
 );
 
-function calculateFromObject(calcObj: CalculationObject) {
+function parseUserInput(calcObj: CalculationObject) {
   const operator = nullCheck(calcObj.operator);
   const [op1, op2] = calcObj.display.split(operator);
   const x = parseInt(op1);
   const y = parseInt(op2) || 0;
-  return `${operate(x, operator, y)}`;
+  const override = (() => {
+    if (!y && operator === "/") {
+      return "undefined";
+    }
+    return null;
+  })();
+  return { x, y, operator, override };
+}
+
+function calculateFromObject(calcObj: CalculationObject) {
+  const { x, y, operator, override } = parseUserInput(calcObj);
+  return override != null ? override : `${operate(x, operator, y)}`;
 }
 
 export const displayObservable = ongoingCalculationObservable.pipe(

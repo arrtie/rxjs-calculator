@@ -9,3 +9,7 @@ export interface CalculationState {
 }
 export type CalculationAction = (state: CalculationState) => CalculationState;
 export type DisplayAction = (state: CalculationState) => string;
+export interface CalculationObject {
+  display: string;
+  operator: CalculatorOperator | null;
+}

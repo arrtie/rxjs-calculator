@@ -10,7 +10,7 @@ export default function ResolveButtons() {
   return (
     <div>
       <CalculatorButton disabled={!totalReady} onClick={clickTotal}>
-        Total
+        =
       </CalculatorButton>
       <CalculatorButton onClick={clickClear}>Clear</CalculatorButton>
     </div>
