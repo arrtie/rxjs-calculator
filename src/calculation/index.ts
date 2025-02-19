@@ -1,66 +1,9 @@
 /** @format */
 
-import { BehaviorSubject, map, merge, scan, share } from "rxjs";
-import { operandSubject } from "../features/operand/controller";
-import { operate, operatorSubject } from "../features/operator/controller";
-import {
-  CalculationState,
-  CalculatorOperator,
-  calculatorOperators,
-} from "../model";
+import { BehaviorSubject, map, scan, share } from "rxjs";
+import { CalculatorOperator, calculatorOperators } from "../model";
 import nullCheck from "../utils/nullCheck";
-
-export const calculationObservable = merge(
-  operandSubject,
-  operatorSubject
-).pipe(
-  scan(
-    (
-      state: CalculationState,
-      action: (state: CalculationState) => CalculationState
-    ) => {
-      return action(state);
-    },
-    { firstOp: "", secondOp: "", operator: "" }
-  ),
-  share()
-);
-
-export const updateCalculation = (opState: CalculationState) => {
-  if (opState.firstOp === "") {
-    return "0";
-  }
-  return `${opState.firstOp} ${opState.operator} ${opState.secondOp}`;
-};
-
-export const calculateState = (state: CalculationState) => {
-  const x = parseInt(state.firstOp);
-  const y = parseInt(state.secondOp);
-  return `${operate(x, state.operator, y)}`;
-};
-
-type DisplayAction = (state: CalculationState) => string;
-
-function makeBaseCalculationState() {
-  return { firstOp: "", secondOp: "", operator: "" };
-}
-
-function clearCalculation() {
-  return makeBaseCalculationState();
-}
-
-export function clickClear() {
-  displayActionBehavior.next(updateCalculation);
-  operatorSubject.next(clearCalculation);
-}
-
-export const displayActionBehavior = new BehaviorSubject<DisplayAction>(
-  updateCalculation
-);
-
-export const hasSecondOperandObservable = calculationObservable.pipe(
-  map((state) => state.secondOp !== "")
-);
+import { operate } from "./operator";
 
 const inputBehavior = new BehaviorSubject("");
 
