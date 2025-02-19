@@ -1,6 +1,7 @@
 /** @format */
 
 import { Subject } from "rxjs";
+import { clickButton } from "../../calculation";
 import { CalculationAction, CalculationState } from "../../model";
 
 export const operandSubject = new Subject<CalculationAction>();
@@ -25,5 +26,6 @@ function appendDigit(x: string) {
 }
 
 export function clickNumber(x: string) {
-  operandSubject.next(appendDigit(x));
+  // operandSubject.next(appendDigit(x));
+  clickButton(x);
 }
