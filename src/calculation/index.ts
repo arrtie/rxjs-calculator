@@ -3,7 +3,12 @@
 import { BehaviorSubject, map, merge, scan, share } from "rxjs";
 import { operandSubject } from "../features/operand/controller";
 import { operate, operatorSubject } from "../features/operator/controller";
-import { CalculationState, calculatorOperators } from "../model";
+import {
+  CalculationState,
+  CalculatorOperator,
+  calculatorOperators,
+} from "../model";
+import nullCheck from "../utils/nullCheck";
 
 export const calculationObservable = merge(
   operandSubject,
@@ -28,7 +33,7 @@ export const updateCalculation = (opState: CalculationState) => {
   return `${opState.firstOp} ${opState.operator} ${opState.secondOp}`;
 };
 
-export const calculate = (state: CalculationState) => {
+export const calculateState = (state: CalculationState) => {
   const x = parseInt(state.firstOp);
   const y = parseInt(state.secondOp);
   return `${operate(x, state.operator, y)}`;
@@ -44,10 +49,6 @@ function clearCalculation() {
   return makeBaseCalculationState();
 }
 
-export function clickTotal() {
-  displayActionBehavior.next(calculate);
-}
-
 export function clickClear() {
   displayActionBehavior.next(updateCalculation);
   operatorSubject.next(clearCalculation);
@@ -56,11 +57,6 @@ export function clickClear() {
 export const displayActionBehavior = new BehaviorSubject<DisplayAction>(
   updateCalculation
 );
-
-// export const displayObservable = combineLatest([
-//   calculationObservable,
-//   displayActionBehavior,
-// ]).pipe(map(([state, displayAction]) => displayAction(state)));
 
 export const hasSecondOperandObservable = calculationObservable.pipe(
   map((state) => state.secondOp !== "")
@@ -72,23 +68,60 @@ export function clickButton(buttonValue: string) {
   inputBehavior.next(buttonValue);
 }
 
+interface CalculationObject {
+  display: string;
+  operator: CalculatorOperator | null;
+  done: boolean;
+}
+
+function appendToCalcObject(latestChar: string) {
+  return function (calcObj: CalculationObject) {
+    calcObj.display = `${calcObj.display}${latestChar}`;
+    return calcObj;
+  };
+}
+
 export const ongoingCalculationObservable = inputBehavior.pipe(
-  scan(
-    (acc, current) => {
-      if (calculatorOperators.includes(current)) {
-        acc.operand = current;
-      }
-      acc.display = `${acc.display}${current}`;
-      return acc;
-    },
-    { display: "", operand: "" }
+  map((latestChar) => {
+    if (calculatorOperators.includes(latestChar)) {
+      return function (calcObj: CalculationObject) {
+        calcObj.operator = latestChar;
+        return appendToCalcObject(latestChar)(calcObj);
+      };
+    }
+    if (latestChar === "C") {
+      return () => ({ display: "", operator: null, done: false });
+    }
+    if (latestChar === "=") {
+      return (calcObj: CalculationObject) => {
+        return {
+          display: calculateFromObject(calcObj),
+          operator: null,
+          done: true,
+        };
+      };
+    }
+    return appendToCalcObject(latestChar);
+  }),
+  scan<(v: CalculationObject) => CalculationObject, CalculationObject>(
+    (acc, current) => current(acc),
+    { display: "", operator: null, done: false }
   ),
   share()
 );
 
+function calculateFromObject(calcObj: CalculationObject) {
+  const operator = nullCheck(calcObj.operator);
+  const [op1, op2] = calcObj.display.split(operator);
+  const x = parseInt(op1);
+  const y = parseInt(op2) || 0;
+  return `${operate(x, operator, y)}`;
+}
+
 export const displayObservable = ongoingCalculationObservable.pipe(
   map((calcObj) => calcObj.display)
 );
+
 export const hasOperatorObservable = ongoingCalculationObservable.pipe(
-  map((calcObj) => calcObj.operand != "")
+  map((calcObj) => calcObj.operator != null)
 );
